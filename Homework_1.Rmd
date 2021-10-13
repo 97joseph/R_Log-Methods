@@ -1,0 +1,244 @@
+---
+title: 
+author: 
+date: "9/16/2021"
+output: pdf_document
+---
+##Introdutcion
+
+In this homework we were challenged to test how does the maternal smoking affect birthweight.
+
+We divided the work in some steps that we will describe in the next segments. Those steps are:
+1.	Data gathering and construction
+2.	Descriptive Statistics and other analysis
+3.	Multilinear regression analysis
+4.	How to perfect our regression
+5.	Go beyond the problem
+
+##1. Data gathering and construction
+
+``{r}
+
+install.packages( "rmarkdown" )
+install.packages( "data . table " )
+install.packages( "ggplot2 " )
+install.packages( " stargazer " )
+install.packages( "lmtest " )
+install.packages( "sandwich" )
+install.packages( "mfx" )
+install.packages( "ggthemes" )
+install.packages( "Metrics " )
+install.packages( "GGally" )
+install.packages( "mgcv" )
+install.packages( "munsell" )
+install.packages( "plm" )
+install.packages( "Formula" )
+install.packages( "ggthemes" )
+install.packages( "cowplot" )
+install.packages( "corrgram" )
+
+``
+
+
+Packages to install:
+```{r message=FALSE, warning=FALSE}
+#install.packages('ggplot2')
+#install.packages('Hmisc')
+#install.packages('datasets')
+#install.packages('stargazer')
+#install.packages('data.table')
+#install.packages('reshape2')
+#install.packages('lmtest')
+#install.packages('zoo')
+```
+
+Activate the packages:
+```{r message=FALSE, warning=FALSE}
+#library(ggplot2)
+#library(Hmisc)
+#library(datasets)
+#library(stargazer)
+#library(data.table)
+#library(reshape2)
+#library(lmtest)
+#library(zoo)
+```
+
+Load the data:
+
+```{r}
+library(readr)
+data <- read_csv("data.csv")
+
+```
+
+
+Transforming the data in data table:
+
+
+```{r}
+library(data.table)
+path_to_data <- "data.csv" 
+#View(fread(path_to_data, nrows = c(100)))
+
+desired_vars <- c("dob_mm", "mager", "mbrace", "fbrace", "previs", "cig_0", "cig_1", "cig_2", "cig_3", "m_ht_in", "bmi", "sex", "combgest", "dbwt", "meduc", "feduc", "rf_pdiab", "rf_gdiab", "rf_phype", "rf_ghype", "ilop_r", "ld_ster", "rf_ehype", "restatus")
+
+data1 <- fread(path_to_data, select = desired_vars)
+
+```          
+  
+  
+  
+We delete all the months except the June, that is what we want to study   
+```{r}
+rm(data)
+data <- data1
+rm(data1)
+
+# Month June
+data <- data[which(data$dob_mm==6),]  
+
+#View(data)
+
+```  
+
+We take off all the data messing 
+
+```{r}
+#Taking out the missing information 
+
+data <- data[which(data$mbrace== list( 1 , 2)),] # mother race
+data <- data[which(data$restatus !=4),] # Residence Status 
+data <- data[which(data$fbrace !=9),]  #father race
+data <- data[which(data$previs !=99),] #Number of Prenatal Visits
+data <- data[which(data$cig_0 !=99),] #Cigarettes
+data <- data[which(data$cig_1 !=99),] #Cigarettes
+data <- data[which(data$cig_2 !=99),] #Cigarettes 
+data <- data[which(data$cig_3 !=99),] #Cigarettes 
+data <- data[which(data$m_ht_in !=99),] #Mother’s Height in Total Inches	 
+data <- data[which(data$bmi !=99.9),] #Body Mass Index 
+data <- data[which(data$combgest !=99),] #Combined Gestation – Detail in Weeks	 
+data <- data[which(data$dbwt !=9999),] #Consider non missing information in variable dbwt Birth Weight – Detail in Grams
+data <- data[which(data$meduc !=9),] #Mother’s Education
+data <- data[which(data$feduc !=9),] #163 1 FEDUC Father’s Education  
+data <- data[which(data$rf_pdiab !="U"),] #Pre-pregnancy Diabetes
+data <- data[which(data$rf_gdiab !="U"),] #Gestational Diabetes	 
+data <- data[which(data$rf_phype !="U"),] #Pre-pregnancy Hypertension 
+data <- data[which(data$rf_ghype !="U"),] #Gestational Hypertension
+data <- data[which(data$ilop_r  !="999"),] #Interval Since Last Other Pregnancy Recode 
+data <- data[which(data$ld_ster !="U"),] #Steroids	 
+data <- data[which(data$rf_ehype !="U"),] #Hypertension Eclampsia
+
+#data <- data.table(data)
+
+summary(data)
+```    
+
+1st Part
+Look to the Cigarettes influence 
+
+````{r}
+stargazer(data[, list(dbwt,cig_0, cig_1, cig_2, cig_3)], type ="text")   
+
+````
+   
+ 
+````{r}
+cor( data[ , list(dbwt, cig_0, cig_1, cig_2, cig_3)], y=NULL, use = "complete")
+
+```  
+   
+   
+   
+   
+   
+   
+   
+2cd Part 
+
+We look for more variables that can influence the birthweight
+   
+```{r}
+
+stargazer(data[ , list(dbwt, mager, mbrace, fagecomb, fbrace, previs, cig_0, cig_1, cig_2, cig_3, m_ht_in, bmi, combgest, meduc, feduc, ilop_r)], type ="text")
+```
+
+           
+           
+           
+           
+        
+           
+           
+           
+```{r}
+
+
+cor( data[ , list(dbwt, mager, mbrace, fagecomb, fbrace, previs, cig_0, cig_1, cig_2, cig_3, m_ht_in, bmi, combgest, meduc, feduc, ilop_r)], y=NULL, use = "complete")
+
+
+```
+
+
+lest create a new data tabel with just the date that are necessary. 
+
+```{r}
+
+```
+
+
+
+
+
+View the data before the treatment:
+```{r}
+install.packages( "rmarkdown" )
+install.packages( "data . table " )
+install.packages( "ggplot2 " )
+install.packages( " stargazer " )
+install.packages( "lmtest " )
+install.packages( "sandwich" )
+install.packages( "mfx" )
+install.packages( "ggthemes" )
+install.packages( "Metrics " )
+install.packages( "GGally" )
+install.packages( "mgcv" )
+install.packages( "munsell" )
+install.packages( "plm" )
+install.packages( "Formula" )
+install.packages( "ggthemes" )
+install.packages( "cowplot" )
+install.packages( "corrgram" )
+
+```
+
+
+
+
+```{r}
+
+````
+
+
+
+
+
+##Analise the varible of smokeres parents
+
+
+
+##Other variables that can have a big effect on the weigh of the babies
+
+The wealth of the families 
+The region of the parents
+The weigh of the parents
+The genre of the babes
+
+Ter em atenção os N.A. values pk são importantes
+diferença entre mean e medium 
+
+
+##Conclusion
+
+
+
