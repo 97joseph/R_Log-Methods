@@ -68,7 +68,8 @@ Load the data:
 
 ```{r}
 library(readr)
-data <- read_csv("data.csv")
+natl2016 <- read_csv("E:/natl2016.csv/natl2016.csv")
+View(natl2016)
 
 ```
 
