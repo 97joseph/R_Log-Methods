@@ -218,7 +218,7 @@ install.packages( "corrgram" )
 
 ```{r}
 
-````
+```
 
 
 
@@ -228,6 +228,45 @@ install.packages( "corrgram" )
 
 
 
+```{r}
+
+library(readr)
+natl2016 <- read_csv("E:/natl2016.csv/natl2016.csv")
+View(natl2016)
+
+library(caTools)
+set.seed(123)
+split = sample.split(dataset$dbwt, SplitRatio = 0.8)
+training_set = subset(dataset, split == TRUE)
+test_set = subset(dataset, split == FALSE)
+
+regressor = lm(formula = dbwt ~ .,
+               data = training_set)
+
+stargazer(data[ , list(dbwt, mager, mbrace, fagecomb, fbrace, previs, cig_0, cig_1, cig_2, cig_3, m_ht_in, bmi, combgest, meduc, feduc, ilop_r)], type ="text")
+
+stargazer(data[ , list(dbwt, cig_0, cig_1, cig_2, cig_3, m_ht_in, bmi, combgest, meduc, feduc, ilop_r)], type ="text")
+
+y_pred = predict(regressor, newdata = test_set)
+
+ggplot()+
+  geom_point(aes(x=training_set$R.D.Spend, y=training_set$Profit), 
+             colour='red')+
+  geom_line(aes(x=training_set$R.D.Spend, y=predict(regressor, newdata=training_set)),
+            colour='blue')+
+  ggtitle("Smokers vs Habit-Dependents (Training Set)")+
+  xlab("Habit")+
+  ylab("Smoker")
+
+ggplot()+
+  geom_point(aes(x=test_set$R.D.cg_1, y=test_set$dbwt),
+             colour='red')+
+  geom_line(aes(x=training_set$R.D.Spend, y=predict(regressor, newdata=training_set)),
+            colour='blue')+
+  ggtitle("Smokers (Test Set)")+
+  xlab("cg_1")+
+  ylab("dbwt")
+```
 ##Other variables that can have a big effect on the weigh of the babies
 
 The wealth of the families 
@@ -237,9 +276,25 @@ The genre of the babes
 
 Ter em atenção os N.A. values pk são importantes
 diferença entre mean e medium 
-
+S
 
 ##Conclusion
 
+Back tracking through the data provides a more suitable algorithm than forward methods
+The first step in interpreting the multiple regression analysis is to examine the F-statistic and the associated p-value, at the bottom of model summary.
 
+In our example, it can be seen that p-value of the F-statistic is < 2.2e-16, which is highly significant. This means that, at least, one of the predictor variables is significantly related to the outcome variable.
 
+To see which predictor variables are significant, you can examine the coefficients table, which shows the estimate of regression beta coefficients and the associated t-statitic p-values:
+For a given predictor variable, the coefficient (b) can be interpreted as the average effect on y of a one unit increase in predictor, holding all other predictors fixed.
+As we have seen in simple linear regression, the overall quality of the model can be assessed by examining the R-squared (R2) and Residual Standard Error (RSE).
+
+R-squared:
+
+In multiple linear regression, the R2 represents the correlation coefficient between the observed values of the outcome variable (y) and the fitted (i.e., predicted) values of y. For this reason, the value of R will always be positive and will range from zero to one.
+
+R2 represents the proportion of variance, in the outcome variable y, that may be predicted by knowing the value of the x variables. An R2 value close to 1 indicates that the model explains a large portion of the variance in the outcome variable.
+
+A problem with the R2, is that, it will always increase when more variables are added to the model, even if those variables are only weakly associated with the response (James et al. 2014). A solution is to adjust the R2 by taking into account the number of predictor variables.
+
+The adjustment in the “Adjusted R Square” value in the summary output is a correction for the number of x variables included in the prediction model.
